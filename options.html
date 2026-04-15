@@ -44,9 +44,9 @@
 
   <!-- Top Bar -->
   <div class="bg-white border-b border-slate-200 sticky top-0 z-30">
-    <div class="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-200/50">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-200/50 shrink-0">
           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -58,7 +58,7 @@
         </div>
       </div>
       <button id="save-btn"
-              class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm py-2 px-5 rounded-xl transition-all duration-200 shadow-md shadow-indigo-200/50 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+              class="w-full sm:w-auto justify-center flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200 shadow-md shadow-indigo-200/50 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
         </svg>
@@ -85,13 +85,13 @@
       </div>
 
       <!-- Add new subject -->
-      <div class="flex gap-2 mb-4">
+      <div class="flex flex-col sm:flex-row gap-2 mb-4">
         <input id="new-subject-input"
                type="text"
                placeholder="e.g. Work From Home Approved"
-               class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
+               class="w-full sm:flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
         <button id="add-subject-btn"
-                class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 whitespace-nowrap">
+                class="w-full sm:w-auto justify-center flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 whitespace-nowrap">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -131,13 +131,13 @@
       </div>
 
       <!-- Add new sender -->
-      <div class="flex gap-2 mb-4">
+      <div class="flex flex-col sm:flex-row gap-2 mb-4">
         <input id="new-sender-input"
                type="email"
                placeholder="e.g. hr@company.com"
-               class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" />
+               class="w-full sm:flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" />
         <button id="add-sender-btn"
-                class="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 whitespace-nowrap">
+                class="w-full sm:w-auto justify-center flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 whitespace-nowrap">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -156,9 +156,9 @@
     </section>
 
     <!-- ──── Info Box ──── -->
-    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-5">
-      <div class="flex gap-3">
-        <div class="shrink-0 mt-0.5">
+    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 sm:p-5">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="shrink-0 sm:mt-0.5">
           <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -166,7 +166,7 @@
         </div>
         <div class="text-sm text-indigo-800 space-y-1">
           <p class="font-semibold">How it works</p>
-          <ul class="list-disc list-inside text-indigo-700 text-xs space-y-0.5">
+          <ul class="list-disc list-inside text-indigo-700 text-xs space-y-1 sm:space-y-0.5">
             <li>The extension searches your Gmail for emails with these subjects in the current year.</li>
             <li>Each matching email counts as <strong>1 leave day</strong> by default.</li>
             <li>If your company changes the email format, just update the keywords here.</li>
