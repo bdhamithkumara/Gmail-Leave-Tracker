@@ -1,53 +1,48 @@
 /**
  * popup.js — Controls the popup UI for Gmail Leave Tracker
  *
- * Responsibilities:
- *   1. Load cached leave count + last refreshed time from storage
- *   2. Handle "Refresh" button clicks
- *   3. Open Options page when settings button is clicked
- *   4. Display loading / error / result states
+ * Now shows: total days + breakdown by leave type (Full / Half / Sick)
  */
 
-// ─── DOM References ──────────────────────────────────────────────────────────
+// ─── DOM References ───────────────────────────────────────────────────────────
 
-const leaveCountEl     = document.getElementById("leave-count");
-const lastRefreshedEl  = document.getElementById("last-refreshed");
-const refreshBtn       = document.getElementById("refresh-btn");
-const refreshIcon      = document.getElementById("refresh-icon");
-const optionsBtn       = document.getElementById("options-btn");
-const loadingState     = document.getElementById("loading-state");
-const errorState       = document.getElementById("error-state");
-const resultState      = document.getElementById("result-state");
-const errorMessageEl   = document.getElementById("error-message");
+const leaveCountEl    = document.getElementById("leave-count");
+const fullCountEl     = document.getElementById("full-count");
+const halfCountEl     = document.getElementById("half-count");
+const sickCountEl     = document.getElementById("sick-count");
+const lastRefreshedEl = document.getElementById("last-refreshed");
+const refreshBtn      = document.getElementById("refresh-btn");
+const refreshIcon     = document.getElementById("refresh-icon");
+const optionsBtn      = document.getElementById("options-btn");
+const loadingState    = document.getElementById("loading-state");
+const errorState      = document.getElementById("error-state");
+const resultState     = document.getElementById("result-state");
+const errorMessageEl  = document.getElementById("error-message");
 
-// ─── Initialize ──────────────────────────────────────────────────────────────
+// ─── Initialize ───────────────────────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", () => {
   loadCachedData();
-
   refreshBtn.addEventListener("click", handleRefresh);
-  optionsBtn.addEventListener("click", () => {
-    chrome.runtime.openOptionsPage();
-  });
+  optionsBtn.addEventListener("click", () => chrome.runtime.openOptionsPage());
 });
 
-// ─── Load Cached Data ────────────────────────────────────────────────────────
+// ─── Load Cached Data ─────────────────────────────────────────────────────────
 
-/**
- * Reads the last known count and refresh time from chrome.storage.local
- * and renders it immediately (so the popup never feels empty).
- */
 function loadCachedData() {
-  chrome.storage.local.get(["leaveCount", "lastRefreshed"], (data) => {
-    if (data.leaveCount !== undefined && data.leaveCount !== null) {
-      showResult(data.leaveCount, data.lastRefreshed);
+  chrome.storage.local.get(
+    ["totalDays", "fullCount", "halfCount", "sickCount", "lastRefreshed"],
+    (data) => {
+      if (data.totalDays !== undefined && data.totalDays !== null) {
+        showResult(data);
+      }
     }
-  });
+  );
 }
 
-// ─── Refresh Handler ─────────────────────────────────────────────────────────
+// ─── Refresh Handler ──────────────────────────────────────────────────────────
 
-async function handleRefresh() {
+function handleRefresh() {
   showLoading();
 
   chrome.runtime.sendMessage({ action: "refresh" }, (response) => {
@@ -57,18 +52,18 @@ async function handleRefresh() {
     }
 
     if (response && response.success) {
-      // Reload from storage to get the freshest data
-      chrome.storage.local.get(["leaveCount", "lastRefreshed"], (data) => {
-        showResult(data.leaveCount, data.lastRefreshed);
-      });
+      // Re-read from storage for the freshest snapshot
+      chrome.storage.local.get(
+        ["totalDays", "fullCount", "halfCount", "sickCount", "lastRefreshed"],
+        (data) => showResult(data)
+      );
     } else {
-      const msg = response?.error || "Unknown error occurred.";
-      showError(msg);
+      showError(response?.error || "Unknown error occurred.");
     }
   });
 }
 
-// ─── UI State Helpers ────────────────────────────────────────────────────────
+// ─── UI State Helpers ─────────────────────────────────────────────────────────
 
 function showLoading() {
   loadingState.classList.add("active");
@@ -78,25 +73,37 @@ function showLoading() {
   refreshIcon.classList.add("spin");
 }
 
-function showResult(count, lastRefreshed) {
+function showResult(data) {
+  const { totalDays = 0, fullCount = 0, halfCount = 0, sickCount = 0, lastRefreshed } = data;
+
   loadingState.classList.remove("active");
   errorState.classList.remove("active");
   resultState.classList.add("active");
   refreshBtn.disabled = false;
   refreshIcon.classList.remove("spin");
 
-  leaveCountEl.textContent = count;
+  // Animate the main count
+  // Show totalDays: if it's a whole number show as integer, else show 1 decimal
+  const displayTotal = Number.isInteger(totalDays)
+    ? String(totalDays)
+    : totalDays.toFixed(1);
+
+  leaveCountEl.textContent = displayTotal;
   leaveCountEl.classList.remove("count-animate");
-  void leaveCountEl.offsetWidth;
+  void leaveCountEl.offsetWidth; // force reflow
   leaveCountEl.classList.add("count-animate");
 
+  // Breakdown counts (show number of emails/occurrences)
+  fullCountEl.textContent = fullCount;
+  halfCountEl.textContent = halfCount;
+  sickCountEl.textContent = sickCount;
+
+  // Last refreshed
   if (lastRefreshed) {
     const date = new Date(lastRefreshed);
     const formatted = date.toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
+      month: "short", day: "numeric",
+      hour: "2-digit", minute: "2-digit"
     });
     lastRefreshedEl.textContent = `Last refreshed: ${formatted}`;
   } else {
