@@ -4,184 +4,411 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Leave Tracker — Settings</title>
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    /* ── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Fade-in animation for list items */
-    @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(-8px); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── Top Bar ──────────────────────────────────── */
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .topbar-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
+    .brand-icon svg { width: 17px; height: 17px; color: #fff; }
+    .brand-text h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .brand-text p { font-size: 11px; color: #94a3b8; }
+
+    /* Save Button */
+    .btn-save {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .btn-save svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .btn-save:hover { background: #4f46e5; box-shadow: 0 4px 14px rgba(99,102,241,0.4); }
+    .btn-save:active { background: #4338ca; }
+
+    /* ── Content ──────────────────────────────────── */
+    .content {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── Section ──────────────────────────────────── */
+    .section-header { margin-bottom: 14px; }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .section-title svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .section-title .badge {
+      font-size: 10px;
+      font-weight: 500;
+      color: #64748b;
+      background: #f1f5f9;
+      border-radius: 20px;
+      padding: 1px 8px;
+    }
+    .section-desc {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    /* ── Add Row ──────────────────────────────────── */
+    .add-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .add-input {
+      flex: 1;
+      min-width: 180px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 9px;
+      padding: 9px 13px;
+      font-size: 13px;
+      color: #1e293b;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .add-input::placeholder { color: #cbd5e1; }
+    .add-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+    .add-input.shake {
+      border-color: #f87171;
+      box-shadow: 0 0 0 3px rgba(248,113,113,0.15);
+    }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: none;
+      border-radius: 9px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .btn-add svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .btn-add-subject { background: #10b981; color: #fff; box-shadow: 0 1px 4px rgba(16,185,129,0.3); }
+    .btn-add-subject:hover { background: #059669; }
+    .btn-add-sender  { background: #8b5cf6; color: #fff; box-shadow: 0 1px 4px rgba(139,92,246,0.3); }
+    .btn-add-sender:hover  { background: #7c3aed; }
+
+    /* ── List Items ───────────────────────────────── */
+    .item-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      transition: border-color 0.18s;
+      animation: slideIn 0.22s ease-out;
+    }
+    .item:hover { border-color: #c7d2fe; }
+
+    .item-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .item-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      color: #374151;
+      min-width: 0;
+    }
+    .item-input:focus { color: #0f172a; }
+
+    .item-delete {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #cbd5e1;
+      opacity: 0;
+      transition: all 0.18s;
+      flex-shrink: 0;
+    }
+    .item-delete svg { width: 14px; height: 14px; }
+    .item:hover .item-delete { opacity: 1; }
+    .item-delete:hover { background: #fef2f2; color: #ef4444; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 28px 16px;
+      display: none;
+    }
+    .empty-state.visible { display: block; }
+    .empty-state svg { width: 32px; height: 32px; color: #e2e8f0; margin: 0 auto 10px; }
+    .empty-state p { font-size: 13px; color: #94a3b8; }
+    .empty-state small { font-size: 11px; color: #cbd5e1; display: block; margin-top: 3px; }
+
+    /* ── Divider ──────────────────────────────────── */
+    hr { border: none; border-top: 1px solid #e2e8f0; }
+
+    /* ── Info Box ─────────────────────────────────── */
+    .info-box {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .info-box-inner { display: flex; gap: 10px; }
+    .info-box-inner svg { width: 16px; height: 16px; color: #6366f1; flex-shrink: 0; margin-top: 1px; }
+    .info-box h3 { font-size: 13px; font-weight: 600; color: #3730a3; margin-bottom: 5px; }
+    .info-box ul {
+      list-style: disc;
+      padding-left: 16px;
+      font-size: 12px;
+      color: #4338ca;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    /* ── Toast ────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      z-index: 100;
+    }
+    .toast-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      white-space: nowrap;
+    }
+    .toast-inner svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Animations ───────────────────────────────── */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .fade-in { animation: fadeSlideIn 0.25s ease-out; }
-
-    /* Toast notification */
     @keyframes toastIn {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translate(-50%, 14px); }
+      to   { opacity: 1; transform: translate(-50%, 0); }
     }
     @keyframes toastOut {
-      from { opacity: 1; transform: translateY(0); }
-      to   { opacity: 0; transform: translateY(16px); }
+      from { opacity: 1; transform: translate(-50%, 0); }
+      to   { opacity: 0; transform: translate(-50%, 14px); }
     }
-    .toast-in  { animation: toastIn 0.3s ease-out; }
-    .toast-out { animation: toastOut 0.3s ease-in forwards; }
+    .toast-in  { animation: toastIn 0.28s ease-out; }
+    .toast-out { animation: toastOut 0.28s ease-in forwards; }
   </style>
 </head>
-<body class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
+<body>
 
   <!-- Top Bar -->
-  <div class="bg-white border-b border-slate-200 sticky top-0 z-30">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-200/50 shrink-0">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">
+        <div class="brand-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
         </div>
-        <div>
-          <h1 class="text-lg font-bold text-slate-900">Leave Tracker Settings</h1>
-          <p class="text-xs text-slate-400">Configure your email scanning rules</p>
+        <div class="brand-text">
+          <h1>Leave Tracker Settings</h1>
+          <p>Configure your email scanning rules</p>
         </div>
       </div>
-      <button id="save-btn"
-              class="w-full sm:w-auto justify-center flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200 shadow-md shadow-indigo-200/50 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      <button id="save-btn" class="btn-save">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7"/>
         </svg>
         Save Changes
       </button>
     </div>
   </div>
 
-  <div class="max-w-2xl mx-auto px-6 py-8 space-y-8">
+  <!-- Main Content -->
+  <div class="content">
 
-    <!-- ──── Subject Keywords Section ──── -->
+    <!-- Subject Keywords -->
     <section>
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2">
-            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-            </svg>
-            Subject Keywords
-          </h2>
-          <p class="text-sm text-slate-500 mt-0.5">Emails with these subjects will be counted as leave days</p>
+      <div class="section-header">
+        <div class="section-title">
+          <svg fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+          </svg>
+          Subject Keywords
         </div>
+        <p class="section-desc">Emails with these subjects will be counted as leave days</p>
       </div>
 
-      <!-- Add new subject -->
-      <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <input id="new-subject-input"
-               type="text"
-               placeholder="e.g. Work From Home Approved"
-               class="w-full sm:flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
-        <button id="add-subject-btn"
-                class="w-full sm:w-auto justify-center flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 whitespace-nowrap">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
+      <div class="add-row">
+        <input id="new-subject-input" class="add-input" type="text" placeholder="e.g. Work From Home Approved" />
+        <button id="add-subject-btn" class="btn-add btn-add-subject">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
           Add
         </button>
       </div>
 
-      <!-- Subject list -->
-      <div id="subject-list" class="space-y-2">
-        <!-- Dynamically populated -->
-      </div>
-
-      <div id="empty-subjects" class="hidden text-center py-8">
-        <svg class="w-8 h-8 text-slate-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-2.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+      <div id="subject-list" class="item-list"></div>
+      <div id="empty-subjects" class="empty-state">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-2.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
         </svg>
-        <p class="text-sm text-slate-400">No subject keywords added yet</p>
-        <p class="text-xs text-slate-300 mt-1">Add your first keyword above to start tracking</p>
+        <p>No subject keywords added yet</p>
+        <small>Add your first keyword above to start tracking</small>
       </div>
     </section>
 
-    <hr class="border-slate-200" />
+    <hr />
 
-    <!-- ──── Sender Filter Section ──── -->
+    <!-- Sender Filters -->
     <section>
-      <div class="mb-4">
-        <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2">
-          <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+      <div class="section-header">
+        <div class="section-title">
+          <svg fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
           </svg>
           Sender Filters
-          <span class="text-xs font-normal text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">Optional</span>
-        </h2>
-        <p class="text-sm text-slate-500 mt-0.5">Only count emails from these senders (leave empty to match all senders)</p>
+          <span class="badge">Optional</span>
+        </div>
+        <p class="section-desc">Only count emails from these senders (leave empty to match all)</p>
       </div>
 
-      <!-- Add new sender -->
-      <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <input id="new-sender-input"
-               type="email"
-               placeholder="e.g. hr@company.com"
-               class="w-full sm:flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" />
-        <button id="add-sender-btn"
-                class="w-full sm:w-auto justify-center flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 whitespace-nowrap">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
+      <div class="add-row">
+        <input id="new-sender-input" class="add-input" type="email" placeholder="e.g. hr@company.com" />
+        <button id="add-sender-btn" class="btn-add btn-add-sender">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
           Add
         </button>
       </div>
 
-      <!-- Sender list -->
-      <div id="sender-list" class="space-y-2">
-        <!-- Dynamically populated -->
-      </div>
-
-      <div id="empty-senders" class="hidden text-center py-6">
-        <p class="text-sm text-slate-400">No sender filters — matching all senders</p>
+      <div id="sender-list" class="item-list"></div>
+      <div id="empty-senders" class="empty-state">
+        <p>No sender filters — matching all senders</p>
       </div>
     </section>
 
-    <!-- ──── Info Box ──── -->
-    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 sm:p-5">
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="shrink-0 sm:mt-0.5">
-          <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <div class="text-sm text-indigo-800 space-y-1">
-          <p class="font-semibold">How it works</p>
-          <ul class="list-disc list-inside text-indigo-700 text-xs space-y-1 sm:space-y-0.5">
-            <li>The extension searches your Gmail for emails with these subjects in the current year.</li>
-            <li>Each matching email counts as <strong>1 leave day</strong> by default.</li>
-            <li>If your company changes the email format, just update the keywords here.</li>
-            <li>Sender filters are optional — use them to narrow results to HR/manager emails only.</li>
+    <!-- Info Box -->
+    <div class="info-box">
+      <div class="info-box-inner">
+        <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <h3>How it works</h3>
+          <ul>
+            <li>Searches Gmail for emails with these subjects in the current year.</li>
+            <li>Each matching email counts as <strong>1 leave day</strong>.</li>
+            <li>Update keywords when your company changes the email format.</li>
+            <li>Sender filters narrow results to specific HR/manager emails.</li>
           </ul>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Toast notification (hidden by default) -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 hidden z-50">
-    <div class="flex items-center gap-2 bg-slate-900 text-white text-sm font-medium px-5 py-3 rounded-xl shadow-xl">
-      <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+  </div><!-- /content -->
+
+  <!-- Toast -->
+  <div id="toast">
+    <div class="toast-inner">
+      <svg id="toast-icon" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M5 13l4 4L19 7"/>
       </svg>
       <span id="toast-message">Settings saved!</span>
     </div>

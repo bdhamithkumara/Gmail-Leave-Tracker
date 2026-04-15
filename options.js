@@ -64,11 +64,11 @@ function renderSubjects() {
   subjectListEl.innerHTML = "";
 
   if (subjects.length === 0) {
-    emptySubjectsEl.classList.remove("hidden");
+    emptySubjectsEl.classList.add("visible");
     return;
   }
 
-  emptySubjectsEl.classList.add("hidden");
+  emptySubjectsEl.classList.remove("visible");
 
   subjects.forEach((subject, index) => {
     subjectListEl.appendChild(createListItem(subject, index, "subject"));
@@ -79,11 +79,11 @@ function renderSenders() {
   senderListEl.innerHTML = "";
 
   if (senders.length === 0) {
-    emptySendersEl.classList.remove("hidden");
+    emptySendersEl.classList.add("visible");
     return;
   }
 
-  emptySendersEl.classList.add("hidden");
+  emptySendersEl.classList.remove("visible");
 
   senders.forEach((sender, index) => {
     senderListEl.appendChild(createListItem(sender, index, "sender"));
@@ -102,50 +102,40 @@ function renderSenders() {
  */
 function createListItem(value, index, type) {
   const wrapper = document.createElement("div");
-  wrapper.className = "flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 fade-in group hover:border-slate-300 transition-all";
+  wrapper.className = "item";
 
-  // Drag handle / number indicator
+  // Number badge
   const badge = document.createElement("span");
-  badge.className = "flex items-center justify-center w-6 h-6 rounded-lg bg-slate-100 text-slate-400 text-xs font-semibold shrink-0";
+  badge.className = "item-num";
   badge.textContent = index + 1;
 
   // Editable input
   const input = document.createElement("input");
   input.type = "text";
   input.value = value;
-  input.className = "flex-1 bg-transparent text-sm text-slate-700 focus:outline-none focus:text-slate-900 transition-colors";
+  input.className = "item-input";
   input.addEventListener("input", () => {
-    if (type === "subject") {
-      subjects[index] = input.value;
-    } else {
-      senders[index] = input.value;
-    }
+    if (type === "subject") subjects[index] = input.value;
+    else senders[index] = input.value;
   });
 
   // Delete button
   const deleteBtn = document.createElement("button");
-  deleteBtn.className = "opacity-0 group-hover:opacity-100 flex items-center justify-center w-7 h-7 rounded-lg hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all duration-200 shrink-0 focus:outline-none";
+  deleteBtn.className = "item-delete";
+  deleteBtn.title = "Delete";
   deleteBtn.innerHTML = `
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+      <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
     </svg>
   `;
-  deleteBtn.title = "Delete";
   deleteBtn.addEventListener("click", () => {
-    if (type === "subject") {
-      subjects.splice(index, 1);
-      renderSubjects();
-    } else {
-      senders.splice(index, 1);
-      renderSenders();
-    }
+    if (type === "subject") { subjects.splice(index, 1); renderSubjects(); }
+    else { senders.splice(index, 1); renderSenders(); }
   });
 
   wrapper.appendChild(badge);
   wrapper.appendChild(input);
   wrapper.appendChild(deleteBtn);
-
   return wrapper;
 }
 
@@ -157,9 +147,8 @@ function addItem(type) {
 
   if (!value) {
     input.focus();
-    // Brief shake animation
-    input.classList.add("ring-2", "ring-red-300");
-    setTimeout(() => input.classList.remove("ring-2", "ring-red-300"), 600);
+    input.classList.add("shake");
+    setTimeout(() => input.classList.remove("shake"), 700);
     return;
   }
 
@@ -208,23 +197,20 @@ function showToast(message, type = "success") {
   toastMessage.textContent = message;
 
   // Swap icon color based on type
-  const icon = toast.querySelector("svg");
+  const icon = document.getElementById("toast-icon");
   if (type === "warning") {
-    icon.classList.remove("text-emerald-400");
-    icon.classList.add("text-amber-400");
+    icon.style.color = "#fbbf24";
   } else {
-    icon.classList.remove("text-amber-400");
-    icon.classList.add("text-emerald-400");
+    icon.style.color = "#34d399";
   }
 
-  toast.classList.remove("hidden");
+  toast.style.display = "block";
   toast.firstElementChild.classList.remove("toast-out");
   toast.firstElementChild.classList.add("toast-in");
 
-  // Auto-hide after 2.5 seconds
   setTimeout(() => {
     toast.firstElementChild.classList.remove("toast-in");
     toast.firstElementChild.classList.add("toast-out");
-    setTimeout(() => toast.classList.add("hidden"), 300);
+    setTimeout(() => { toast.style.display = "none"; }, 300);
   }, 2500);
 }

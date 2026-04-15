@@ -71,28 +71,25 @@ async function handleRefresh() {
 // ─── UI State Helpers ────────────────────────────────────────────────────────
 
 function showLoading() {
-  loadingState.classList.remove("hidden");
-  resultState.classList.add("hidden");
-  errorState.classList.add("hidden");
+  loadingState.classList.add("active");
+  resultState.classList.remove("active");
+  errorState.classList.remove("active");
   refreshBtn.disabled = true;
   refreshIcon.classList.add("spin");
 }
 
 function showResult(count, lastRefreshed) {
-  loadingState.classList.add("hidden");
-  errorState.classList.add("hidden");
-  resultState.classList.remove("hidden");
+  loadingState.classList.remove("active");
+  errorState.classList.remove("active");
+  resultState.classList.add("active");
   refreshBtn.disabled = false;
   refreshIcon.classList.remove("spin");
 
-  // Animate the count update
   leaveCountEl.textContent = count;
   leaveCountEl.classList.remove("count-animate");
-  // Force reflow to restart animation
   void leaveCountEl.offsetWidth;
   leaveCountEl.classList.add("count-animate");
 
-  // Format the last refreshed time
   if (lastRefreshed) {
     const date = new Date(lastRefreshed);
     const formatted = date.toLocaleString(undefined, {
@@ -108,9 +105,9 @@ function showResult(count, lastRefreshed) {
 }
 
 function showError(message) {
-  loadingState.classList.add("hidden");
-  resultState.classList.add("hidden");
-  errorState.classList.remove("hidden");
+  loadingState.classList.remove("active");
+  resultState.classList.remove("active");
+  errorState.classList.add("active");
   refreshBtn.disabled = false;
   refreshIcon.classList.remove("spin");
   errorMessageEl.textContent = message;
