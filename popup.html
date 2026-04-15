@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gmail Leave Tracker</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Import Inter font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    body { width: 360px; min-height: 280px; }
+
+    /* Animated gradient background */
+    .gradient-bg {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+    }
+
+    /* Pulse animation for the count */
+    @keyframes countPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .count-animate {
+      animation: countPulse 0.6s ease-in-out;
+    }
+
+    /* Spin animation for refresh icon */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin { animation: spin 1s linear infinite; }
+
+    /* Subtle float animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .float { animation: float 3s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased">
+
+  <!-- Header -->
+  <div class="gradient-bg px-5 pt-6 pb-8 text-white relative overflow-hidden">
+    <!-- Decorative circles -->
+    <div class="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full"></div>
+    <div class="absolute -bottom-4 -left-4 w-16 h-16 bg-white/5 rounded-full"></div>
+
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <h1 class="text-lg font-bold tracking-tight">Gmail Leave Tracker</h1>
+      </div>
+      <p class="text-indigo-200 text-xs">Track your leave days automatically</p>
+    </div>
+  </div>
+
+  <!-- Count Card — floats over the header/body boundary -->
+  <div class="px-5 -mt-5 relative z-20">
+    <div id="count-card"
+         class="bg-white rounded-2xl shadow-lg shadow-indigo-100/50 border border-slate-100 p-5 text-center transition-all duration-300">
+
+      <!-- Loading state -->
+      <div id="loading-state" class="hidden">
+        <div class="flex flex-col items-center gap-3 py-2">
+          <svg class="w-8 h-8 text-indigo-400 spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <p class="text-sm text-slate-500">Scanning your emails…</p>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div id="error-state" class="hidden">
+        <div class="flex flex-col items-center gap-2 py-2">
+          <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+          </div>
+          <p id="error-message" class="text-sm text-red-600 font-medium"></p>
+          <p class="text-xs text-slate-400">Try refreshing or check your settings</p>
+        </div>
+      </div>
+
+      <!-- Result state -->
+      <div id="result-state">
+        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Days Taken This Year</p>
+        <div class="float">
+          <p id="leave-count" class="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent leading-tight">
+            —
+          </p>
+        </div>
+        <p id="last-refreshed" class="text-[11px] text-slate-400 mt-2">
+          Not yet refreshed
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="px-5 mt-4 pb-5 space-y-2.5">
+    <!-- Refresh Button -->
+    <button id="refresh-btn"
+            class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm py-2.5 px-4 rounded-xl transition-all duration-200 shadow-md shadow-indigo-200/50 hover:shadow-lg hover:shadow-indigo-300/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      <svg id="refresh-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Refresh Now
+    </button>
+
+    <!-- Settings Link -->
+    <button id="options-btn"
+            class="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-600 font-medium text-sm py-2.5 px-4 rounded-xl border border-slate-200 transition-all duration-200 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Configure Keywords & Senders
+    </button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
