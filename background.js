@@ -66,6 +66,21 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 /**
  * Groups subjects by type, runs one Gmail query per group,
  * then calculates total days and stores everything.
+ *
+ * CONFLICT RESOLUTION — Priority: sick > half > full
+ *
+ * Gmail's subject search is substring-based, so a broad keyword like
+ * "Leave Request" would accidentally match emails that also contain
+ * "Half Day Leave Request". To prevent an email being counted twice,
+ * each group's query explicitly EXCLUDES subjects belonging to
+ * higher-priority groups using Gmail's -subject:(...) operator.
+ *
+ * Example:
+ *   sick  query: subject:("Sick Leave Approved")
+ *   half  query: subject:("Half Day Leave Request") -subject:("Sick Leave Approved")
+ *   full  query: subject:("Leave Request") -subject:("Half Day Leave Request" OR "Sick Leave Approved")
+ *
+ * This guarantees every email is counted in exactly ONE type.
  */
 async function fetchLeaveCount() {
   const { subjects, senders } = await getFromStorage(["subjects", "senders"]);
@@ -77,7 +92,6 @@ async function fetchLeaveCount() {
     return empty;
   }
 
-  // Group subject texts by type
   const groups = groupSubjectsByType(subjects);
   console.log("[Leave Tracker] Subject groups:", groups);
 
@@ -85,28 +99,31 @@ async function fetchLeaveCount() {
   const currentYear = new Date().getFullYear();
   const safeSenders = senders || [];
 
-  // Run one search per type group (only if that group has subjects)
   let fullCount = 0, halfCount = 0, sickCount = 0;
 
-  if (groups.full.length > 0) {
-    const q = buildGmailQuery(groups.full, safeSenders, currentYear);
-    console.log("[Leave Tracker] Full-day query:", q);
-    fullCount = (await fetchAllMessageIds(token, q)).length;
-  }
-
-  if (groups.half.length > 0) {
-    const q = buildGmailQuery(groups.half, safeSenders, currentYear);
-    console.log("[Leave Tracker] Half-day query:", q);
-    halfCount = (await fetchAllMessageIds(token, q)).length;
-  }
-
+  // ── Sick (highest priority — no exclusions needed) ──
   if (groups.sick.length > 0) {
-    const q = buildGmailQuery(groups.sick, safeSenders, currentYear);
+    const q = buildGmailQuery(groups.sick, safeSenders, currentYear, []);
     console.log("[Leave Tracker] Sick-leave query:", q);
     sickCount = (await fetchAllMessageIds(token, q)).length;
   }
 
-  // Total days: full=1, half=0.5, sick=1
+  // ── Half (exclude sick subjects so they don't overlap) ──
+  if (groups.half.length > 0) {
+    const excludes = [...groups.sick];
+    const q = buildGmailQuery(groups.half, safeSenders, currentYear, excludes);
+    console.log("[Leave Tracker] Half-day query:", q);
+    halfCount = (await fetchAllMessageIds(token, q)).length;
+  }
+
+  // ── Full (exclude sick + half subjects — lowest priority) ──
+  if (groups.full.length > 0) {
+    const excludes = [...groups.sick, ...groups.half];
+    const q = buildGmailQuery(groups.full, safeSenders, currentYear, excludes);
+    console.log("[Leave Tracker] Full-day query:", q);
+    fullCount = (await fetchAllMessageIds(token, q)).length;
+  }
+
   const totalDays = (fullCount * TYPE_DAYS.full)
                   + (halfCount * TYPE_DAYS.half)
                   + (sickCount * TYPE_DAYS.sick);
@@ -137,15 +154,28 @@ function groupSubjectsByType(subjects) {
 // ─── Gmail Query Builder ─────────────────────────────────────────────────────
 
 /**
- * Builds a Gmail search query for a given array of subject strings.
+ * Builds a Gmail search query for a given array of subject strings,
+ * with optional exclusions to prevent double-counting across type groups.
  *
- * Example:
- *   subject:("Leave Approved" OR "Annual Leave") after:2026/01/01 before:2027/01/01
+ * @param {string[]} subjectTexts  — subjects to match
+ * @param {string[]} senders       — optional sender filter
+ * @param {number}   year          — current calendar year
+ * @param {string[]} excludeTexts  — subjects to EXCLUDE (from higher-priority groups)
+ *
+ * Example output:
+ *   subject:("Leave Request") -subject:("Half Day Leave Request" OR "Sick Leave Approved")
+ *   after:2026/01/01 before:2027/01/01
  */
-function buildGmailQuery(subjectTexts, senders, year) {
+function buildGmailQuery(subjectTexts, senders, year, excludeTexts = []) {
   const nextYear = year + 1;
   const subjectPart = subjectTexts.map((s) => `"${s}"`).join(" OR ");
   let query = `subject:(${subjectPart}) after:${year}/01/01 before:${nextYear}/01/01`;
+
+  // Exclude subjects from higher-priority groups to prevent double-counting
+  if (excludeTexts.length > 0) {
+    const excludePart = excludeTexts.map((s) => `"${s}"`).join(" OR ");
+    query += ` -subject:(${excludePart})`;
+  }
 
   if (senders.length > 0) {
     query += ` from:(${senders.join(" OR ")})`;
