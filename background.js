@@ -157,24 +157,47 @@ function groupSubjectsByType(subjects) {
  * Builds a Gmail search query for a given array of subject strings,
  * with optional exclusions to prevent double-counting across type groups.
  *
+ * WHY subject:"phrase" (not subject:("phrase")):
+ *   Wrapping a phrase in outer parentheses — subject:("Leave Request") —
+ *   makes Gmail treat it as individual word matching (any subject containing
+ *   both "Leave" AND "Request" anywhere). This would wrongly match
+ *   "Request for Work From Home and Leave". Using subject:"phrase" without
+ *   outer parens enforces strict consecutive-phrase matching.
+ *
+ * WHY separate -subject:"A" -subject:"B" (not -subject:(A OR B)):
+ *   Gmail silently ignores OR inside a negative operator, so
+ *   -subject:("A" OR "B") does NOT exclude anything. Each excluded
+ *   term needs its own -subject:"..." clause.
+ *
  * @param {string[]} subjectTexts  — subjects to match
  * @param {string[]} senders       — optional sender filter
  * @param {number}   year          — current calendar year
  * @param {string[]} excludeTexts  — subjects to EXCLUDE (from higher-priority groups)
  *
- * Example output:
- *   subject:("Leave Request") -subject:("Half Day Leave Request" OR "Sick Leave Approved")
+ * Example output (full-day query when half+sick subjects exist):
+ *   (subject:"Leave Request" OR subject:"Annual Leave Granted")
+ *   -subject:"Half Day Leave Request" -subject:"Sick Leave Approved"
  *   after:2026/01/01 before:2027/01/01
  */
 function buildGmailQuery(subjectTexts, senders, year, excludeTexts = []) {
   const nextYear = year + 1;
-  const subjectPart = subjectTexts.map((s) => `"${s}"`).join(" OR ");
-  let query = `subject:(${subjectPart}) after:${year}/01/01 before:${nextYear}/01/01`;
 
-  // Exclude subjects from higher-priority groups to prevent double-counting
+  // Use subject:"phrase" per term for true phrase matching, grouped with OR
+  const subjectPart = subjectTexts
+    .map((s) => `subject:"${s}"`)
+    .join(" OR ");
+
+  // Wrap in parens only when there are multiple subjects
+  const subjectClause = subjectTexts.length === 1
+    ? `subject:"${subjectTexts[0]}"`
+    : `(${subjectPart})`;
+
+  let query = `${subjectClause} after:${year}/01/01 before:${nextYear}/01/01`;
+
+  // One -subject:"..." per excluded term — Gmail does NOT support OR in negations
   if (excludeTexts.length > 0) {
-    const excludePart = excludeTexts.map((s) => `"${s}"`).join(" OR ");
-    query += ` -subject:(${excludePart})`;
+    const exclusions = excludeTexts.map((s) => `-subject:"${s}"`).join(" ");
+    query += ` ${exclusions}`;
   }
 
   if (senders.length > 0) {
