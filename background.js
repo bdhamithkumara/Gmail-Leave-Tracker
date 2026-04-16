@@ -102,41 +102,41 @@ async function fetchLeaveCount() {
   let fullCount = 0, halfCount = 0, sickCount = 0;
 
   // ── Sick (highest priority) ──
-  let sickMessageIds = new Set();
+  let sickThreadIds = new Set();
   if (groups.sick.length > 0) {
     const q = buildGmailQuery(groups.sick, safeSenders, currentYear);
     console.log("[Leave Tracker] Sick-leave query:", q);
     const msgs = await fetchAllMessageIds(token, q);
-    msgs.forEach((m) => sickMessageIds.add(m.id));
-    sickCount = sickMessageIds.size;
+    msgs.forEach((m) => sickThreadIds.add(m.threadId));
+    sickCount = sickThreadIds.size;
   }
 
-  // ── Half (exclude messages already counted in Sick) ──
-  let halfMessageIds = new Set();
+  // ── Half (exclude threads already counted in Sick) ──
+  let halfThreadIds = new Set();
   if (groups.half.length > 0) {
     const q = buildGmailQuery(groups.half, safeSenders, currentYear);
     console.log("[Leave Tracker] Half-day query:", q);
     const msgs = await fetchAllMessageIds(token, q);
     msgs.forEach((m) => {
-      if (!sickMessageIds.has(m.id)) {
-        halfMessageIds.add(m.id);
+      if (!sickThreadIds.has(m.threadId)) {
+        halfThreadIds.add(m.threadId);
       }
     });
-    halfCount = halfMessageIds.size;
+    halfCount = halfThreadIds.size;
   }
 
-  // ── Full (exclude messages already counted in Sick or Half) ──
-  let fullMessageIds = new Set();
+  // ── Full (exclude threads already counted in Sick or Half) ──
+  let fullThreadIds = new Set();
   if (groups.full.length > 0) {
     const q = buildGmailQuery(groups.full, safeSenders, currentYear);
     console.log("[Leave Tracker] Full-day query:", q);
     const msgs = await fetchAllMessageIds(token, q);
     msgs.forEach((m) => {
-      if (!sickMessageIds.has(m.id) && !halfMessageIds.has(m.id)) {
-        fullMessageIds.add(m.id);
+      if (!sickThreadIds.has(m.threadId) && !halfThreadIds.has(m.threadId)) {
+        fullThreadIds.add(m.threadId);
       }
     });
-    fullCount = fullMessageIds.size;
+    fullCount = fullThreadIds.size;
   }
 
   const totalDays = (fullCount * TYPE_DAYS.full)
