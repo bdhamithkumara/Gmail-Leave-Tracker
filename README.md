@@ -16,6 +16,24 @@
 
 ---
 
+## 📥 Installation
+
+### 1. Get the Code
+You can get the extension code by downloading the ZIP or using Git:
+- **Download ZIP**: Click the green **"<> Code"** button at the top of this GitHub repository and select **"Download ZIP"**. Extract the downloaded ZIP file to a folder on your computer.
+- **Git Clone**: Run `git clone https://github.com/bdhamithkumara/Gmail-Leave-Tracker.git` in your terminal.
+
+### 2. Add to Chrome
+1. Open Google Chrome and navigate to `chrome://extensions/`
+2. Enable **"Developer mode"** by clicking the toggle in the top-right corner.
+3. Click the **"Load unpacked"** button that appears in the top-left.
+4. Select the `Gmail-Leave-Tracker` folder you extracted/cloned in step 1.
+5. The extension will now appear in your list! Pin it to your toolbar by clicking the puzzle piece icon 🧩 in Chrome.
+
+> **Note:** To actually connect it to your Gmail, you must follow the Setup Guide below to create a Google Cloud Project and get an OAuth Client ID.
+
+---
+
 ## 📁 File Structure
 
 ```
@@ -88,11 +106,11 @@ leave-tracker/
 
 ### Step 5 — Load the Extension (to get its ID)
 
+*If you already followed the Installation section, you just need to grab the Extension ID:*
 1. Open Chrome and navigate to `chrome://extensions`
-2. Enable **"Developer mode"** (toggle in the top-right)
-3. Click **"Load unpacked"**
-4. Select the `leave-tracker` folder (this project directory)
-5. Your extension will appear — copy the **Extension ID** shown under the extension name
+2. Ensure **"Developer mode"** is enabled.
+3. Find the "Gmail Leave Tracker" in your list of extensions.
+4. Copy the **Extension ID** shown under the extension name.
 
    Example: `abcdefghijklmnopqrstuvwxyz123456`
 
